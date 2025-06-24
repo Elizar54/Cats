@@ -58,8 +58,8 @@ def get_prediction(image, model, labels):
 
 # Интерфейс Streamlit
 def main():
-    st.title("Классификация изображений с помощью ResNet")
-    st.write("Загрузите изображение, и модель предскажет его класс.")
+    st.title("Определение породы кота/кошки с помощью ResNet18")
+    st.write("Загрузите изображение котика, и модель предскажет его породу.")
     
     # Загрузка модели и меток
     model = load_model()
@@ -78,7 +78,7 @@ def main():
     
     if uploaded_file is not None:
         image = Image.open(uploaded_file)
-        st.image(image, caption="Загруженное изображение", use_container_width=False)
+        st.image(image, caption="Загруженное изображение", use_container_width=True)
         
         # Предсказание
         if st.button("Классифицировать"):
