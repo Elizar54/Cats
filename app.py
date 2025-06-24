@@ -3,6 +3,7 @@ import streamlit as st
 from PIL import Image
 import torch
 from torchvision import transforms, models
+from torch import nn
 warnings.filterwarnings("ignore")
 
 
@@ -21,11 +22,12 @@ def transform_image(image):
 # Загрузка предобученной модели
 @st.cache_resource  # Кэшируем модель, чтобы не загружать её при каждом обновлении
 def load_model():
-    model = models.resnet18(pretrained=False)  # or resnet34, resnet50, etc.
-
-    # 2. Modify the final FC layer to match the checkpoint (66 classes)
-    num_ftrs = model.fc.in_features  # Get input features of the last layer
-    model.fc = torch.nn.Linear(num_ftrs, 66)  # Change output to 66 classes
+    model = models.efficientnet_b3(pretrained=False)
+    model.classifier[-1] = nn.Linear(model.classifier[-1].in_features, 66)
+    model.classifier = nn.Sequential(
+        nn.Dropout(0.5),  # Добавьте dropout
+        nn.Linear(1536, 66)
+)
 
     # 3. Now load the checkpoint
     checkpoint = torch.load('model_weights_efficient_net.pth', map_location=torch.device('cpu'))
