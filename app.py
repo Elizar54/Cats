@@ -12,7 +12,9 @@ def transform_image(image):
                                         transforms.ToTensor(),
                                         transforms.Normalize(
                                             [0.485, 0.456, 0.406],
-                                            [0.229, 0.224, 0.225])])
+                                            [0.229, 0.224, 0.225]),
+                                        transforms.RandomHorizontalFlip(0.3),
+                                        transforms.RandomRotation(180)])
     return my_transforms(image).unsqueeze(0)
 
 
@@ -26,7 +28,7 @@ def load_model():
     model.fc = torch.nn.Linear(num_ftrs, 66)  # Change output to 66 classes
 
     # 3. Now load the checkpoint
-    checkpoint = torch.load('model_weights.pth', map_location=torch.device('cpu'))
+    checkpoint = torch.load('model_weights_efficient_net.pth', map_location=torch.device('cpu'))
     model.load_state_dict(checkpoint)
     model.eval()
 
