@@ -13,9 +13,7 @@ def transform_image(image):
                                         transforms.ToTensor(),
                                         transforms.Normalize(
                                             [0.485, 0.456, 0.406],
-                                            [0.229, 0.224, 0.225]),
-                                        transforms.RandomHorizontalFlip(0.3),
-                                        transforms.RandomRotation(180)])
+                                            [0.229, 0.224, 0.225])])
     return my_transforms(image).unsqueeze(0)
 
 
