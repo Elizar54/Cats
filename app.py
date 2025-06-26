@@ -19,10 +19,10 @@ def transform_image(image):
 @st.cache_resource  # Кэшируем модель, чтобы не загружать её при каждом обновлении
 def load_model():
     model = models.mobilenet_v3_small(pretrained=False)
-    model.classifier[-1] = nn.Linear(model.classifier[-1].in_features, 66)
+    model.classifier[-1] = nn.Linear(model.classifier[-1].in_features, 67)
     model.classifier = nn.Sequential(
         nn.Dropout(0.5), 
-        nn.Linear(1536, 67)
+        nn.Linear(576, 67)
 )
 
     # 3. Now load the checkpoint
