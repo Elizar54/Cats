@@ -8,29 +8,25 @@ warnings.filterwarnings("ignore")
 
 
 def transform_image(image):
-    my_transforms = transforms.Compose([transforms.Resize(255),
-                                        transforms.CenterCrop(224),
-                                        transforms.ToTensor(),
-                                        transforms.Normalize(
-                                            [0.485, 0.456, 0.406],
-                                            [0.229, 0.224, 0.225]),
-                                        transforms.RandomHorizontalFlip(0.3),
-                                        transforms.RandomRotation(180)])
+    my_transforms = transforms.Compose([
+        transforms.Resize((224, 224)),
+        transforms.ToTensor(),
+        transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
+])
     return my_transforms(image).unsqueeze(0)
 
 
-# Загрузка предобученной модели
 @st.cache_resource  # Кэшируем модель, чтобы не загружать её при каждом обновлении
 def load_model():
-    model = models.efficientnet_b3(pretrained=False)
+    model = models.mobilenet_v3_small(pretrained=False)
     model.classifier[-1] = nn.Linear(model.classifier[-1].in_features, 66)
     model.classifier = nn.Sequential(
-        nn.Dropout(0.5),  # Добавьте dropout
-        nn.Linear(1536, 66)
+        nn.Dropout(0.5), 
+        nn.Linear(1536, 67)
 )
 
     # 3. Now load the checkpoint
-    checkpoint = torch.load('model_weights_efficient_net.pth', map_location=torch.device('cpu'))
+    checkpoint = torch.load('model_weights_mobile_net.pth', map_location=torch.device('cpu'))
     model.load_state_dict(checkpoint)
     model.eval()
 
@@ -38,7 +34,6 @@ def load_model():
 
 # Функция для предсказания
 def get_prediction(image, model, labels):
-
     
     tensor = transform_image(image=image)
     outputs = list(model.forward(tensor).detach().numpy())[0]
@@ -60,22 +55,22 @@ def get_prediction(image, model, labels):
 
     return result
 
-# Интерфейс Streamlit
+
 def main():
     st.title("Определение породы кота/кошки")
     st.write("Загрузите изображение котика, и модель предскажет его породу.")
-    
-    # Загрузка модели и меток
+  
     model = load_model()
-    labels = ['abyssinian', 'american_bobtail', 'american_curl', 'american_shorthair', 'american_wirehair', 
-           'balinese', 'bengal', 'birman', 'bombay', 'british_shorthair', 'burmese', 'chartreux', 'chausie', 
-           'cornish_rex', 'cymric', 'cyprus', 'devon_rex', 'donskoy', 'egyptian_mau', 'european_shorthair', 
-           'exotic_shorthair', 'german_rex', 'havana_brown', 'himalayan', 'japanese_bobtail', 'karelian_bobtail', 
-           'khao_manee', 'korat', 'korean_bobtail', 'kurilian_bobtail', 'laperm', 'lykoi', 'maine_coon', 'manx', 
-           'mekong_bobtail', 'munchkin', 'nebelung', 'norwegian_forest_cat', 'ocicat', 'oregon_rex', 'oriental_shorthair', 
-           'persian', 'peterbald', 'pixie_bob', 'ragamuffin', 'ragdoll', 'russian_blue', 'safari', 'savannah', 'scottish_fold', 
-           'selkirk_rex', 'serengeti', 'siamese', 'siberian', 'singapura', 'sokoke', 'somali', 'sphynx', 'thai', 'tonkinese', 
-           'toyger', 'turkish_angora', 'turkish_van', 'ukrainian_levkoy', 'ural_rex', 'vankedisi']
+    labels = ['Abyssinian', 'American Bobtail', 'American Curl', 'American Shorthair', 'American Wirehair', 
+              'Applehead Siamese', 'Balinese', 'Bengal', 'Birman', 'Bombay', 'British Shorthair', 'Burmese', 
+              'Burmilla', 'Calico', 'Canadian Hairless', 'Chartreux', 'Chausie', 'Chinchilla', 'Cornish Rex', 
+              'Cymric', 'Devon Rex', 'Dilute Calico', 'Dilute Tortoiseshell', 'Domestic Long Hair', 'Domestic Medium Hair', 
+              'Domestic Short Hair', 'Egyptian Mau', 'Exotic Shorthair', 'Extra-Toes Cat - Hemingway Polydactyl', 'Havana', 
+              'Himalayan', 'Japanese Bobtail', 'Javanese', 'Korat', 'LaPerm', 'Maine Coon', 'Manx', 'Munchkin', 'Nebelung', 
+              'Norwegian Forest Cat', 'Ocicat', 'Oriental Long Hair', 'Oriental Short Hair', 'Oriental Tabby', 'Persian', 
+              'Pixiebob', 'Ragamuffin', 'Ragdoll', 'Russian Blue', 'Scottish Fold', 'Selkirk Rex', 'Siamese', 'Siberian', 
+              'Silver', 'Singapura', 'Snowshoe', 'Somali', 'Sphynx - Hairless Cat', 'Tabby', 'Tiger', 'Tonkinese', 'Torbie', 
+              'Tortoiseshell', 'Turkish Angora', 'Turkish Van', 'Tuxedo', 'York Chocolate']
     
     # Загрузка изображения
     uploaded_file = st.file_uploader("Выберите изображение...", type=["jpg", "jpeg", "png"])
